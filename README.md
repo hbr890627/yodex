@@ -6,5 +6,5 @@
 
 
 ## Modules:
-* pip install mediapipe
-* pip install autopy
+* `pip install mediapipe`
+* `pip install autopy`
