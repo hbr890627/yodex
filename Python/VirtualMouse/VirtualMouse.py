@@ -75,4 +75,5 @@ while True:
                 (255, 0, 0), 3)
     # 12. Display
     cv2.imshow("Image", img)
-    cv2.waitKey(1)
+    if cv2.waitKey(5) & 0xFF == 27:
+        break
