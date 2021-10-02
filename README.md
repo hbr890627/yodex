@@ -2,7 +2,7 @@
 新一代設計產學合作
 
 ## 環境:
-* Python 3.8
+* Python 3.8.11
 
 
 ## Modules:
