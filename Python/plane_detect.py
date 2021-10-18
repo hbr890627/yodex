@@ -169,18 +169,22 @@ def AR():
 
 
 def DrawPyramid(img, imgpts):
+    for i in imgpts:
+        print(i.ravel()[0])
+        i.ravel()[0]
+
     img = cv2.line(img, tuple(imgpts[0].ravel()), tuple(
         imgpts[1].ravel()), (255, 128, 0), 5)
-    img = cv2.line(img, tuple(imgpts[0].ravel()), tuple(
-        imgpts[2].ravel()), (255, 128, 0), 5)
-    img = cv2.line(img, tuple(imgpts[0].ravel()), tuple(
-        imgpts[3].ravel()), (255, 128, 0), 5)
-    img = cv2.line(img, tuple(imgpts[1].ravel()), tuple(
-        imgpts[2].ravel()), (255, 128, 0), 5)
-    img = cv2.line(img, tuple(imgpts[1].ravel()), tuple(
-        imgpts[3].ravel()), (255, 128, 0), 5)
-    img = cv2.line(img, tuple(imgpts[2].ravel()), tuple(
-        imgpts[3].ravel()), (255, 128, 0), 5)
+    # img = cv2.line(img, tuple(imgpts[0].ravel()), tuple(
+    #     imgpts[2].ravel()), (255, 128, 0), 5)
+    # img = cv2.line(img, tuple(imgpts[0].ravel()), tuple(
+    #     imgpts[3].ravel()), (255, 128, 0), 5)
+    # img = cv2.line(img, tuple(imgpts[1].ravel()), tuple(
+    #     imgpts[2].ravel()), (255, 128, 0), 5)
+    # img = cv2.line(img, tuple(imgpts[1].ravel()), tuple(
+    #     imgpts[3].ravel()), (255, 128, 0), 5)
+    # img = cv2.line(img, tuple(imgpts[2].ravel()), tuple(
+    #     imgpts[3].ravel()), (255, 128, 0), 5)
     return img
 # endregion
 
@@ -221,8 +225,8 @@ def main():
     DrawContour()
 
 
-# CornerDetection()
-AR()
+CornerDetection()
+# AR()
 
 
 # images = glob.glob('Datasets/Q2_Image/*.bmp')
