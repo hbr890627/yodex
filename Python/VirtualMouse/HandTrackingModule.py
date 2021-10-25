@@ -6,7 +6,7 @@ import numpy as np
 
 
 class handDetector():
-    def __init__(self, mode=False, maxHands=2, detectionCon=0.5, trackCon=0.5):
+    def __init__(self, mode=False, maxHands=2, detectionCon=0.7, trackCon=0.7):
         self.mode = mode
         self.maxHands = maxHands
         self.detectionCon = detectionCon
@@ -39,13 +39,12 @@ class handDetector():
         if self.results.multi_hand_landmarks:
             myHand = self.results.multi_hand_landmarks[handNo]
             for id, lm in enumerate(myHand.landmark):
-                # print(id, lm)
                 h, w, c = img.shape
-                cx, cy = int(lm.x * w), int(lm.y * h)
+                cx, cy, cz = int(lm.x * w), int(lm.y * h), int(lm.z*1000)
                 xList.append(cx)
                 yList.append(cy)
                 # print(id, cx, cy)
-                self.lmList.append([id, cx, cy])
+                self.lmList.append([id, cx, cy, cz])
                 if draw:
                     cv2.circle(img, (cx, cy), 5, (255, 0, 255), cv2.FILLED)
 
@@ -93,17 +92,44 @@ class handDetector():
         return length, img, [x1, y1, x2, y2, cx, cy]
 
 
+def asd(pos):
+
+    return averagePos
+
+
 def main():
     pTime = 0
     cTime = 0
     cap = cv2.VideoCapture(0)
     detector = handDetector()
+    finger1 = []
     while True:
         success, img = cap.read()
+        img = cv2.flip(img, 1)
         img = detector.findHands(img)
         lmList, bbox = detector.findPosition(img)
+
         if len(lmList) != 0:
-            print(lmList[4])
+            finger1.append(lmList[8])
+            if(len(finger1) > 10):
+                del finger1[0]
+
+            averagePos = [0, 0, 0]
+            for pos in finger1:
+                averagePos[0] += pos[1]
+                averagePos[1] += pos[2]
+                averagePos[2] += pos[3]
+
+            averagePos[0] = averagePos[0]/len(finger1)
+            averagePos[1] = averagePos[1]/len(finger1)
+            averagePos[2] = averagePos[2]/len(finger1)
+
+            # if abs(lmList[8][3]-averagePos[2]) > 10:
+            #     print("ten finger contact")
+            # else:
+            # print("not contact")
+            # print(lmList[8][3])
+            print(averagePos)
 
         cTime = time.time()
         fps = 1 / (cTime - pTime)
