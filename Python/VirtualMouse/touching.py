@@ -6,7 +6,7 @@ import numpy as np
 
 
 class handDetector():
-    def __init__(self, mode=False, maxHands=2, detectionCon=0.7, trackCon=0.7):
+    def __init__(self, mode=False, maxHands=1, detectionCon=0.7, trackCon=0.7):
         self.mode = mode
         self.maxHands = maxHands
         self.detectionCon = detectionCon
@@ -17,6 +17,7 @@ class handDetector():
                                         self.detectionCon, self.trackCon)
         self.mpDraw = mp.solutions.drawing_utils
         self.tipIds = [4, 8, 12, 16, 20]
+        self.tenAveragePos = [0, 0, 0]
 
     def findHands(self, img, draw=True):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -43,6 +44,7 @@ class handDetector():
                 cx, cy, cz = int(lm.x * w), int(lm.y * h), int(lm.z*1000)
                 xList.append(cx)
                 yList.append(cy)
+
                 # print(id, cx, cy)
                 self.lmList.append([id, cx, cy, cz])
                 if draw:
@@ -91,10 +93,24 @@ class handDetector():
 
         return length, img, [x1, y1, x2, y2, cx, cy]
 
+    def checkTouching(self, img):
+        if self.lmList == None:
+            return
 
-def asd(pos):
+        self.tenAveragePos[0] += self.lmList[8][1]
+        self.tenAveragePos[1] += self.lmList[8][2]
+        self.tenAveragePos[2] += self.lmList[8][3]
+        self.tenAveragePos[0] /= 2
+        self.tenAveragePos[1] /= 2
+        self.tenAveragePos[2] /= 2
 
-    return averagePos
+        if abs(self.lmList[8][3]-self.tenAveragePos[2]) > 10:
+            cx = self.lmList[8][1]
+            cy = self.lmList[8][2]
+            cv2.circle(img, (cx, cy), 10, (255, 0, 0), cv2.FILLED)
+            print("ten finger contact")
+
+        return True
 
 
 def main():
@@ -102,7 +118,6 @@ def main():
     cTime = 0
     cap = cv2.VideoCapture(0)
     detector = handDetector()
-    finger1 = []
     while True:
         success, img = cap.read()
         img = cv2.flip(img, 1)
@@ -110,26 +125,7 @@ def main():
         lmList, bbox = detector.findPosition(img)
 
         if len(lmList) != 0:
-            finger1.append(lmList[8])
-            if(len(finger1) > 10):
-                del finger1[0]
-
-            averagePos = [0, 0, 0]
-            for pos in finger1:
-                averagePos[0] += pos[1]
-                averagePos[1] += pos[2]
-                averagePos[2] += pos[3]
-
-            averagePos[0] = averagePos[0]/len(finger1)
-            averagePos[1] = averagePos[1]/len(finger1)
-            averagePos[2] = averagePos[2]/len(finger1)
-
-            # if abs(lmList[8][3]-averagePos[2]) > 10:
-            #     print("ten finger contact")
-            # else:
-            # print("not contact")
-            # print(lmList[8][3])
-            print(averagePos)
+            detector.checkTouching(img)
 
         cTime = time.time()
         fps = 1 / (cTime - pTime)
