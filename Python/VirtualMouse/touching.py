@@ -6,7 +6,7 @@ import numpy as np
 
 
 class handDetector():
-    def __init__(self, mode=False, maxHands=1, detectionCon=0.7, trackCon=0.7):
+    def __init__(self, mode=False, maxHands=1, detectionCon=0.7, trackCon=0.4):
         self.mode = mode
         self.maxHands = maxHands
         self.detectionCon = detectionCon
@@ -16,8 +16,10 @@ class handDetector():
         self.hands = self.mpHands.Hands(self.mode, self.maxHands,
                                         self.detectionCon, self.trackCon)
         self.mpDraw = mp.solutions.drawing_utils
+
         self.tipIds = [4, 8, 12, 16, 20]
         self.tenAveragePos = [0, 0, 0]
+        self.variances = []
 
     def findHands(self, img, draw=True):
         imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -36,6 +38,8 @@ class handDetector():
         xList = []
         yList = []
         bbox = []
+
+        # [id, x, y, z]
         self.lmList = []
         if self.results.multi_hand_landmarks:
             myHand = self.results.multi_hand_landmarks[handNo]
@@ -100,17 +104,70 @@ class handDetector():
         self.tenAveragePos[0] += self.lmList[8][1]
         self.tenAveragePos[1] += self.lmList[8][2]
         self.tenAveragePos[2] += self.lmList[8][3]
-        self.tenAveragePos[0] /= 2
-        self.tenAveragePos[1] /= 2
-        self.tenAveragePos[2] /= 2
+        self.tenAveragePos[0] *= 0.5
+        self.tenAveragePos[1] *= 0.5
+        self.tenAveragePos[2] *= 0.5
+        # print(self.tenAveragePos[2])
 
-        if abs(self.lmList[8][3]-self.tenAveragePos[2]) > 10:
+        variancex = abs(self.lmList[8][1]-self.tenAveragePos[0])
+        variancey = abs(self.lmList[8][2]-self.tenAveragePos[1])
+        variancez = abs(self.lmList[8][3]-self.tenAveragePos[2])
+        variance = variancex + variancey + variancez
+
+        print(variance)
+
+        self.variances.append(variance)
+        if len(self.variances) > 100:
+            del self.variances[0]
+
+        if variance > 15:
             cx = self.lmList[8][1]
             cy = self.lmList[8][2]
             cv2.circle(img, (cx, cy), 10, (255, 0, 0), cv2.FILLED)
-            print("ten finger contact")
+            # print("ten finger contact")
 
         return True
+
+
+def twoValueFilter(datas, smoothfactor):
+    newdatas = []
+    prevdata = 0
+    for data in datas:
+        newdata = data*smoothfactor+prevdata*(1-smoothfactor)
+        newdatas.append(newdata)
+        prevdata = data
+    return newdatas
+
+
+def arithmeticMeanFilter(datas, N):
+    newdatas = []
+    i = 0
+    for data in datas:
+        datasum = 0
+        for k in range(N):
+            try:
+                datasum += datas[i+k]
+            except:
+                break
+        newdata = datasum/N
+        newdatas.append(newdata)
+        i += 1
+
+    return newdatas
+
+
+def visualizeData(inputdata, index):
+    # datas = twoValueFilter(inputdata, index)
+    datas = arithmeticMeanFilter(inputdata, index)
+    dataimg = np.zeros((200, 500, 3), np.uint8)
+    dataimg.fill(200)
+    i = 1
+    for data in datas:
+        cv2.circle(dataimg, (i*5, int(data)), 2, (255, 0, 0), cv2.FILLED)
+        i += 1
+
+    name = "data with smoothefactor "+str(index)
+    cv2.imshow(name, dataimg)
 
 
 def main():
@@ -135,6 +192,18 @@ def main():
                     (255, 0, 255), 3)
 
         cv2.imshow("Image", img)
+
+        datas = detector.variances
+
+        # data monitor
+        visualizeData(datas, 20)
+        visualizeData(datas, 10)
+        visualizeData(datas, 8)
+        visualizeData(datas, 5)
+        visualizeData(datas, 3)
+        visualizeData(datas, 2)
+        visualizeData(datas, 1)
+
         cv2.waitKey(1)
 
 
