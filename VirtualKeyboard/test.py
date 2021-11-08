@@ -155,7 +155,7 @@ def camPreview(previewName, camID):
         if camID == 1:
             img_backup = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             imgL = img_backup
-        if camID == 2:
+        if camID == 0:
             img_backup = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             imgR = img_backup
         # To improve performance, optionally mark the image as not writeable to
@@ -230,12 +230,16 @@ def camPreview(previewName, camID):
     cv2.destroyWindow(previewName)'''
 
 def stereo():
-    stereo = cv2.StereoBM_create(numDisparities=256, blockSize=25)
+    # stereo = cv2.StereoBM_create(numDisparities=32, blockSize=15) 56 21
+    stereo = cv2.StereoSGBM_create(numDisparities=64, blockSize=21)
     global imgL, imgR
     while True:
         try:
             #print(imgL.shape, imgR.shape)
+            imgL= cv2.flip(imgL,1)
+            imgR= cv2.flip(imgR,1)
             disparity = stereo.compute(imgL, imgR)
+            # disparity=cv2.flip(disparity,1)
             #disparity = cv2.resize(disparity, (0, 0), fx=0.3, fy=0.3,interpolation=cv2.INTER_NEAREST)
             disparity = cv2.normalize(disparity, None, 255,0, cv2.NORM_MINMAX, cv2.CV_8UC1)
             h, w = disparity.shape
@@ -253,9 +257,7 @@ def stereo():
 # Create two threads as follows
 thread1 = camThread("Camera 1", 0)
 thread2 = camThread("Camera 2", 1)
-thread3 = camThread("Camera 3", 2)
 thread4 = threading.Thread(target = stereo)
 thread1.start()
 thread2.start()
-thread3.start()
 thread4.start()
