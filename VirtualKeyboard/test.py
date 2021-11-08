@@ -5,11 +5,11 @@ import time
 import numpy as np
 
 mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
+# mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
-imgL = np.zeros((480,640), np.uint8)
-imgR = np.zeros((480,640), np.uint8)
+imgL = np.zeros((480, 640), np.uint8)
+imgR = np.zeros((480, 640), np.uint8)
 
 '''# For static images:
 IMAGE_FILES = []
@@ -142,7 +142,8 @@ def camPreview(previewName, camID):
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, SCREEN_WIDTH)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, SCREEN_HEIGHT)
 
-    hands = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.9)
+    hands = mp_hands.Hands(min_detection_confidence=0.5,
+                           min_tracking_confidence=0.9)
     while cap.isOpened():
         global imgL, imgR
         start = time.time()
@@ -151,11 +152,15 @@ def camPreview(previewName, camID):
             print("Ignoring empty camera frame.")
             # If loading a video, use 'break' instead of 'continue'.
             continue
-        img_backup = image
+        if camID == 0:
+            image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
         if camID == 1:
+            image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+        img_backup = image
+        if camID == 0:
             img_backup = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             imgL = img_backup
-        if camID == 2:
+        if camID == 1:
             img_backup = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             imgR = img_backup
         # To improve performance, optionally mark the image as not writeable to
@@ -172,9 +177,9 @@ def camPreview(previewName, camID):
                 mp_drawing.draw_landmarks(
                     image,
                     hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS,
-                    mp_drawing_styles.get_default_hand_landmarks_style(),
-                    mp_drawing_styles.get_default_hand_connections_style())
+                    mp_hands.HAND_CONNECTIONS)
+                # mp_drawing_styles.get_default_hand_landmarks_style(),
+                # mp_drawing_styles.get_default_hand_connections_style())
         # Flip the image horizontally for a selfie-view display.
         end = time.time()
         seconds = end - start
@@ -229,17 +234,19 @@ def camPreview(previewName, camID):
             break
     cv2.destroyWindow(previewName)'''
 
+
 def stereo():
-    stereo = cv2.StereoBM_create(numDisparities=256, blockSize=25)
+    stereo = cv2.StereoBM_create(numDisparities=64, blockSize=25)
     global imgL, imgR
     while True:
         try:
             #print(imgL.shape, imgR.shape)
             disparity = stereo.compute(imgL, imgR)
             #disparity = cv2.resize(disparity, (0, 0), fx=0.3, fy=0.3,interpolation=cv2.INTER_NEAREST)
-            disparity = cv2.normalize(disparity, None, 255,0, cv2.NORM_MINMAX, cv2.CV_8UC1)
+            disparity = cv2.normalize(
+                disparity, None, 255, 0, cv2.NORM_MINMAX, cv2.CV_8UC1)
             h, w = disparity.shape
-            cv2.imshow('disparity',disparity)
+            cv2.imshow('disparity', disparity)
         except:
             #print(imgL.shape, imgR.shape)
             True
@@ -253,9 +260,7 @@ def stereo():
 # Create two threads as follows
 thread1 = camThread("Camera 1", 0)
 thread2 = camThread("Camera 2", 1)
-thread3 = camThread("Camera 3", 2)
-thread4 = threading.Thread(target = stereo)
+thread3 = threading.Thread(target=stereo)
 thread1.start()
 thread2.start()
 thread3.start()
-thread4.start()
