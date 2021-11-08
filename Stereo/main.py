@@ -4,10 +4,6 @@ import threading
 import time
 import numpy as np
 
-mp_drawing = mp.solutions.drawing_utils
-# mp_drawing_styles = mp.solutions.drawing_styles
-mp_hands = mp.solutions.hands
-
 imgL = np.zeros((480, 640), np.uint8)
 imgR = np.zeros((480, 640), np.uint8)
 
@@ -33,8 +29,6 @@ def camPreview(previewName, camID):
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, SCREEN_WIDTH)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, SCREEN_HEIGHT)
 
-    hands = mp_hands.Hands(min_detection_confidence=0.5,
-                           min_tracking_confidence=0.9)
     global thread_run
     while cap.isOpened() and thread_run:
         global imgL, imgR
@@ -61,20 +55,11 @@ def camPreview(previewName, camID):
         # pass by reference.
         image.flags.writeable = False
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        results = hands.process(image)
 
         # Draw the hand annotations on the image.
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(
-                    image,
-                    hand_landmarks,
-                    mp_hands.HAND_CONNECTIONS)
-                # mp_drawing_styles.get_default_hand_landmarks_style(),
-                # mp_drawing_styles.get_default_hand_connections_style())
-        # Flip the image horizontally for a selfie-view display.
+
         end = time.time()
         seconds = end - start
         fps = 1 / seconds
@@ -128,12 +113,15 @@ def threadinggg(num, size):
     thread.start()
 
 
-# Create two threads as follows
-thread1 = camThread("Camera 1", 0)
-thread2 = camThread("Camera 2", 1)
-thread1.start()
-thread2.start()
+def main():
+    # Create two threads as follows
+    thread1 = camThread("Camera 1", 0)
+    thread2 = camThread("Camera 2", 1)
+    thread1.start()
+    thread2.start()
+
+    threadinggg(100, 13)
+    threadinggg(100, 17)
 
 
-threadinggg(100, 13)
-threadinggg(100, 17)
+main()
