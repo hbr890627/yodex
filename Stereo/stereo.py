@@ -87,7 +87,7 @@ def camPreview(previewName, camID):
         cv2.putText(imageshow, text, (0, 30), font, 1, (255, 0, 0), 2)
         #imageshow = cv2.resize(imageshow, (960, 540))
 
-        # cv2.imshow(previewName, imageshow)
+        cv2.imshow(previewName, imageshow)
 
         key = cv2.waitKey(20)
         if key == 27 & 0xFF == 27:  # exit on ESC
