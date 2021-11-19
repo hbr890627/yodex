@@ -3,8 +3,7 @@ import cv2
 from tqdm import tqdm
 
 # Set the path to the images captured by the left and right cameras
-pathL = "./data/stereoL/"
-pathR = "./data/stereoR/"
+
 
 print("Extracting image coordinates of respective 3D pattern ....\n")
 
@@ -19,11 +18,17 @@ img_ptsL = []
 img_ptsR = []
 obj_pts = []
 
-for i in tqdm(range(1,28)):
-	imgL = cv2.imread(pathL+"img%d.png"%i)
-	imgR = cv2.imread(pathR+"img%d.png"%i)
-	imgL_gray = cv2.imread(pathL+"img%d.png"%i,0)
-	imgR_gray = cv2.imread(pathR+"img%d.png"%i,0)
+imgL = cv2.imread("./yodex/Stereo/stereoL_img1.png")
+imgR = cv2.imread("./yodex/Stereo/stereoR_img1.png")
+imgL_gray = cv2.cvtColor(imgL, cv2.COLOR_BGR2GRAY)
+imgR_gray = cv2.cvtColor(imgR, cv2.COLOR_BGR2GRAY)
+
+for i in tqdm(range(1,3)):
+	imgL = cv2.imread("./yodex/Stereo/stereoL_img%d.png"%i)
+	imgR = cv2.imread("./yodex/Stereo/stereoR_img%d.png"%i)
+	imgL_gray = cv2.cvtColor(imgL, cv2.COLOR_BGR2GRAY)
+	imgR_gray = cv2.cvtColor(imgR, cv2.COLOR_BGR2GRAY)
+	
 
 	outputL = imgL.copy()
 	outputR = imgR.copy()
@@ -31,6 +36,7 @@ for i in tqdm(range(1,28)):
 	retR, cornersR =  cv2.findChessboardCorners(outputR,(9,6),None)
 	retL, cornersL = cv2.findChessboardCorners(outputL,(9,6),None)
 
+	print(retR,retL)
 	if retR and retL:
 		obj_pts.append(objp)
 		cv2.cornerSubPix(imgR_gray,cornersR,(11,11),(-1,-1),criteria)
@@ -39,7 +45,8 @@ for i in tqdm(range(1,28)):
 		cv2.drawChessboardCorners(outputL,(9,6),cornersL,retL)
 		cv2.imshow('cornersR',outputR)
 		cv2.imshow('cornersL',outputL)
-		cv2.waitKey(0)
+		print("current: "+str(i))
+		# cv2.waitKey(0)
 
 		img_ptsL.append(cornersL)
 		img_ptsR.append(cornersR)
@@ -96,7 +103,7 @@ Right_Stereo_Map= cv2.initUndistortRectifyMap(new_mtxR, distR, rect_r, proj_mat_
 
 
 print("Saving paraeters ......")
-cv_file = cv2.FileStorage("data/params_py.xml", cv2.FILE_STORAGE_WRITE)
+cv_file = cv2.FileStorage("./yodex/Stereo/params_py.xml", cv2.FILE_STORAGE_WRITE)
 cv_file.write("Left_Stereo_Map_x",Left_Stereo_Map[0])
 cv_file.write("Left_Stereo_Map_y",Left_Stereo_Map[1])
 cv_file.write("Right_Stereo_Map_x",Right_Stereo_Map[0])
