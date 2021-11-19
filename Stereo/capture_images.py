@@ -2,10 +2,6 @@ import numpy as np
 import cv2
 import time
 
-print("Checking the right and left camera IDs:")
-print("Press (y) if IDs are correct and (n) to swap the IDs")
-print("Press enter to start the process >> ")
-input()
 
 # Check for left and right camera IDs
 CamL_id = 0
@@ -21,23 +17,23 @@ for i in range(100):
 cv2.imshow('imgL', frameL)
 cv2.imshow('imgR', frameR)
 
-if cv2.waitKey(0) & 0xFF == ord('y') or cv2.waitKey(0) & 0xFF == ord('Y'):
-    CamL_id = 0
-    CamR_id = 1
-    print("Camera IDs maintained")
+# if cv2.waitKey(0) & 0xFF == ord('y') or cv2.waitKey(0) & 0xFF == ord('Y'):
+#     CamL_id = 0
+#     CamR_id = 1
+#     print("Camera IDs maintained")
 
-elif cv2.waitKey(0) & 0xFF == ord('n') or cv2.waitKey(0) & 0xFF == ord('N'):
-    CamL_id = 1
-    CamR_id = 0
-    print("Camera IDs swapped")
-else:
-    print("Wrong input response")
-    exit(-1)
-CamR.release()
-CamL.release()
-n
-CamL = cv2.VideoCapture(CamL_id)
-CamR = cv2.VideoCapture(CamR_id)
+# elif cv2.waitKey(0) & 0xFF == ord('n') or cv2.waitKey(0) & 0xFF == ord('N'):
+#     CamL_id = 1
+#     CamR_id = 0
+#     print("Camera IDs swapped")
+# else:
+#     print("Wrong input response")
+# #     exit(-1)
+# CamR.release()
+# CamL.release()
+# n
+# CamL = cv2.VideoCapture(CamL_id)
+# CamR = cv2.VideoCapture(CamR_id)
 output_path = "./data/"
 
 start = time.time()
