@@ -23,7 +23,7 @@ imgR = cv2.imread("./yodex/Stereo/stereoR_img1.png")
 imgL_gray = cv2.cvtColor(imgL, cv2.COLOR_BGR2GRAY)
 imgR_gray = cv2.cvtColor(imgR, cv2.COLOR_BGR2GRAY)
 
-for i in tqdm(range(1,3)):
+for i in tqdm(range(1,9)):
 	imgL = cv2.imread("./yodex/Stereo/stereoL_img%d.png"%i)
 	imgR = cv2.imread("./yodex/Stereo/stereoR_img%d.png"%i)
 	imgL_gray = cv2.cvtColor(imgL, cv2.COLOR_BGR2GRAY)

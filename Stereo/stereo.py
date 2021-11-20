@@ -14,6 +14,15 @@ imgR = np.zeros((480, 640), np.uint8)
 # threading control
 thread_run = True
 
+print("Reading parameters ......")
+cv_file = cv2.FileStorage("./yodex/Stereo/params_py.xml", cv2.FILE_STORAGE_READ)
+
+Left_Stereo_Map_x = cv_file.getNode("Left_Stereo_Map_x").mat()
+Left_Stereo_Map_y = cv_file.getNode("Left_Stereo_Map_y").mat()
+Right_Stereo_Map_x = cv_file.getNode("Right_Stereo_Map_x").mat()
+Right_Stereo_Map_y = cv_file.getNode("Right_Stereo_Map_y").mat()
+cv_file.release()
+
 
 class camThread(threading.Thread):
     def __init__(self, previewName, camID):
@@ -46,8 +55,10 @@ def camPreview(previewName, camID):
             continue
         if camID == 0:
             image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            image= cv2.remap(image,Left_Stereo_Map_x,Left_Stereo_Map_y, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
         if camID == 1:
             image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+            image= cv2.remap(image,Right_Stereo_Map_x,Right_Stereo_Map_y, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
 
         img_backup = image
 

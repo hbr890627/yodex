@@ -22,7 +22,8 @@ while True:
     
 	retR, imgR= CamR.read()
 	retL, imgL= CamL.read()
-    
+	imgR = cv2.rotate(imgR, cv2.ROTATE_90_CLOCKWISE)
+	imgL = cv2.rotate(imgL, cv2.ROTATE_90_COUNTERCLOCKWISE)
 	print("new")
     
 	if retL and retR:
@@ -38,10 +39,12 @@ while True:
 		output[:,:,2] = Left_nice[:,:,2]
 
 		# output = Left_nice+Right_nice
-		output = cv2.resize(output,(700,700))
+		output = cv2.resize(output,(480,640))
 		cv2.namedWindow("3D movie",cv2.WINDOW_NORMAL)
-		cv2.resizeWindow("3D movie",700,700)
-		cv2.imshow("3D movie",imgL)
-        cv2.waitKey(1)
+		cv2.resizeWindow("3D movie",480,640)
+		cv2.imshow("3D movie",output)
+    
+		cv2.waitKey(1)
+	
 	else:
-		break
+	    break
