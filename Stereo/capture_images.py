@@ -10,12 +10,11 @@ CamR_id = 1
 CamL = cv2.VideoCapture(CamL_id)
 CamR = cv2.VideoCapture(CamR_id)
 
-# for i in range(100):
-#     retL, frameL = CamL.read()
-#     retR, frameR = CamR.read()
-
-# cv2.imshow('imgL', frameL)
-# cv2.imshow('imgR', frameR)
+for i in range(10):
+    retL, frameL = CamL.read()
+    retR, frameR = CamR.read()
+    cv2.imshow('imgL', frameL)
+    cv2.imshow('imgR', frameR)
 
 # if cv2.waitKey(0) & 0xFF == ord('y') or cv2.waitKey(0) & 0xFF == ord('Y'):
 #     CamL_id = 0
